@@ -1,5 +1,7 @@
 # tmux-weather-revamped
 
+[![Tests](https://github.com/gufranco/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/gufranco/tmux-weather-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Weather in your tmux status bar, fetched in the background so the status render
 never waits on the network.
 
@@ -42,6 +44,12 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 
 See the [wttr.in format options](https://github.com/chubin/wttr.in#one-line-output)
 for format codes.
+
+## Support by platform and architecture
+
+Works on every supported platform and architecture. The only requirement is
+`curl` on `PATH`, which ships with macOS (Intel and Apple Silicon) and is a one
+package install on Linux (x86_64 and arm64).
 
 ## How it stays responsive
 
