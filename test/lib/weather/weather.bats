@@ -115,6 +115,31 @@ teardown() {
   [[ "$(weather_render_color "+28°C")" == "#[fg=magenta]" ]]
 }
 
+@test "weather.sh - weather_render_color passes a named color through verbatim" {
+  set_tmux_option "@weather_revamped_hot_color" "#[fg=red]"
+  [[ "$(weather_render_color "+28°C")" == "#[fg=red]" ]]
+}
+
+@test "weather.sh - weather_render_color passes a 256-palette color through verbatim" {
+  set_tmux_option "@weather_revamped_hot_color" "#[fg=colour203]"
+  [[ "$(weather_render_color "+28°C")" == "#[fg=colour203]" ]]
+}
+
+@test "weather.sh - weather_render_color passes a hex foreground through verbatim" {
+  set_tmux_option "@weather_revamped_hot_color" "#[fg=#f38ba8]"
+  [[ "$(weather_render_color "+28°C")" == "#[fg=#f38ba8]" ]]
+}
+
+@test "weather.sh - weather_render_color passes a hex fg and bg pair through verbatim" {
+  set_tmux_option "@weather_revamped_hot_color" "#[fg=#f38ba8,bg=#1e1e2e]"
+  [[ "$(weather_render_color "+28°C")" == "#[fg=#f38ba8,bg=#1e1e2e]" ]]
+}
+
+@test "weather.sh - weather_render_color passes a bright color name through verbatim" {
+  set_tmux_option "@weather_revamped_hot_color" "#[fg=brightred]"
+  [[ "$(weather_render_color "+28°C")" == "#[fg=brightred]" ]]
+}
+
 @test "weather.sh - weather_render_color is empty without a parseable temperature" {
   [[ -z "$(weather_render_color "partly cloudy")" ]]
 }

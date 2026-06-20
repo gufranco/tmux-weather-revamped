@@ -90,6 +90,78 @@ set -g @weather_revamped_hot_color '#[fg=colour208]'
 
 When the temperature cannot be parsed, both placeholders render empty.
 
+## Theme color suggestions
+
+The defaults use the 16 ANSI color names, which the active terminal theme remaps,
+so the bands match whatever theme you run out of the box. For exact hex values
+that pin a band to a specific shade, copy one block below.
+
+### Catppuccin Mocha
+
+```tmux
+set -g @weather_revamped_freezing_color '#[fg=#89b4fa]'
+set -g @weather_revamped_cold_color '#[fg=#94e2d5]'
+set -g @weather_revamped_cool_color '#[fg=#a6e3a1]'
+set -g @weather_revamped_comfortable_color '#[fg=#a6e3a1]'
+set -g @weather_revamped_hot_color '#[fg=#f9e2af]'
+set -g @weather_revamped_very_hot_color '#[fg=#f38ba8]'
+```
+
+### Dracula
+
+```tmux
+set -g @weather_revamped_freezing_color '#[fg=#bd93f9]'
+set -g @weather_revamped_cold_color '#[fg=#8be9fd]'
+set -g @weather_revamped_cool_color '#[fg=#50fa7b]'
+set -g @weather_revamped_comfortable_color '#[fg=#50fa7b]'
+set -g @weather_revamped_hot_color '#[fg=#f1fa8c]'
+set -g @weather_revamped_very_hot_color '#[fg=#ff5555]'
+```
+
+### Nord
+
+```tmux
+set -g @weather_revamped_freezing_color '#[fg=#81a1c1]'
+set -g @weather_revamped_cold_color '#[fg=#88c0d0]'
+set -g @weather_revamped_cool_color '#[fg=#a3be8c]'
+set -g @weather_revamped_comfortable_color '#[fg=#a3be8c]'
+set -g @weather_revamped_hot_color '#[fg=#ebcb8b]'
+set -g @weather_revamped_very_hot_color '#[fg=#bf616a]'
+```
+
+### Gruvbox Dark
+
+```tmux
+set -g @weather_revamped_freezing_color '#[fg=#83a598]'
+set -g @weather_revamped_cold_color '#[fg=#8ec07c]'
+set -g @weather_revamped_cool_color '#[fg=#b8bb26]'
+set -g @weather_revamped_comfortable_color '#[fg=#b8bb26]'
+set -g @weather_revamped_hot_color '#[fg=#fabd2f]'
+set -g @weather_revamped_very_hot_color '#[fg=#fb4934]'
+```
+
+### Tokyo Night
+
+```tmux
+set -g @weather_revamped_freezing_color '#[fg=#7aa2f7]'
+set -g @weather_revamped_cold_color '#[fg=#7dcfff]'
+set -g @weather_revamped_cool_color '#[fg=#9ece6a]'
+set -g @weather_revamped_comfortable_color '#[fg=#9ece6a]'
+set -g @weather_revamped_hot_color '#[fg=#e0af68]'
+set -g @weather_revamped_very_hot_color '#[fg=#f7768e]'
+```
+
+### Solarized Dark
+
+```tmux
+set -g @weather_revamped_freezing_color '#[fg=#268bd2]'
+set -g @weather_revamped_cold_color '#[fg=#2aa198]'
+set -g @weather_revamped_cool_color '#[fg=#859900]'
+set -g @weather_revamped_comfortable_color '#[fg=#859900]'
+set -g @weather_revamped_hot_color '#[fg=#b58900]'
+set -g @weather_revamped_very_hot_color '#[fg=#dc322f]'
+```
+
 ## Support by platform and architecture
 
 Works on every supported platform and architecture. The only requirement is
