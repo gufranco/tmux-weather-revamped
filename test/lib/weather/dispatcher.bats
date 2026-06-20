@@ -53,6 +53,19 @@ teardown() {
   [[ "${output}" == "Rainy 12°C" ]]
 }
 
+@test "weather.sh dispatcher - color subcommand renders the cached band color" {
+  weather_fetch() { echo "+28°C clear"; }
+  run main color
+  [[ "${output}" == "#[fg=yellow]" ]]
+}
+
+@test "weather.sh dispatcher - icon subcommand renders the cached band icon" {
+  set_tmux_option "@weather_revamped_very_hot_icon" "HOT"
+  weather_fetch() { echo "+35°C clear"; }
+  run main icon
+  [[ "${output}" == "HOT" ]]
+}
+
 @test "weather.sh dispatcher - unknown subcommand produces no output" {
   run main bogus
   [[ -z "${output}" ]]

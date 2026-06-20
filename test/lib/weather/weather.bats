@@ -43,3 +43,91 @@ teardown() {
   _read_weather() { echo ""; }
   [[ -z "$(weather_fetch "http://x")" ]]
 }
+
+@test "weather.sh - weather_temp_from_text reads a positive temperature" {
+  [[ "$(weather_temp_from_text "+18°C clear")" == "18" ]]
+}
+
+@test "weather.sh - weather_temp_from_text reads a negative temperature" {
+  [[ "$(weather_temp_from_text "-3°C snow")" == "-3" ]]
+}
+
+@test "weather.sh - weather_temp_from_text reads an unsigned fahrenheit value" {
+  [[ "$(weather_temp_from_text "64F sunny")" == "64" ]]
+}
+
+@test "weather.sh - weather_temp_from_text is empty when no temperature is present" {
+  [[ -z "$(weather_temp_from_text "partly cloudy")" ]]
+}
+
+@test "weather.sh - weather_band classifies freezing" {
+  [[ "$(weather_band -5)" == "freezing" ]]
+}
+
+@test "weather.sh - weather_band classifies cold" {
+  [[ "$(weather_band 5)" == "cold" ]]
+}
+
+@test "weather.sh - weather_band classifies cool" {
+  [[ "$(weather_band 15)" == "cool" ]]
+}
+
+@test "weather.sh - weather_band classifies comfortable" {
+  [[ "$(weather_band 20)" == "comfortable" ]]
+}
+
+@test "weather.sh - weather_band classifies hot" {
+  [[ "$(weather_band 28)" == "hot" ]]
+}
+
+@test "weather.sh - weather_band classifies very_hot" {
+  [[ "$(weather_band 35)" == "very_hot" ]]
+}
+
+@test "weather.sh - weather_band is empty for a non-integer" {
+  [[ -z "$(weather_band "abc")" ]]
+}
+
+@test "weather.sh - _weather_band_default_color maps every band" {
+  [[ "$(_weather_band_default_color freezing)" == "#[fg=blue]" ]]
+  [[ "$(_weather_band_default_color cold)" == "#[fg=cyan]" ]]
+  [[ "$(_weather_band_default_color cool)" == "#[fg=green]" ]]
+  [[ "$(_weather_band_default_color comfortable)" == "#[fg=green]" ]]
+  [[ "$(_weather_band_default_color hot)" == "#[fg=yellow]" ]]
+  [[ "$(_weather_band_default_color very_hot)" == "#[fg=red]" ]]
+  [[ -z "$(_weather_band_default_color nonsense)" ]]
+}
+
+@test "weather.sh - weather_render_color uses the band default" {
+  [[ "$(weather_render_color "+20°C clear")" == "#[fg=green]" ]]
+}
+
+@test "weather.sh - weather_render_color colors a freezing reading blue" {
+  [[ "$(weather_render_color "-5°C snow")" == "#[fg=blue]" ]]
+}
+
+@test "weather.sh - weather_render_color colors a very hot reading red" {
+  [[ "$(weather_render_color "+35°C")" == "#[fg=red]" ]]
+}
+
+@test "weather.sh - weather_render_color honors the band option" {
+  set_tmux_option "@weather_revamped_hot_color" "#[fg=magenta]"
+  [[ "$(weather_render_color "+28°C")" == "#[fg=magenta]" ]]
+}
+
+@test "weather.sh - weather_render_color is empty without a parseable temperature" {
+  [[ -z "$(weather_render_color "partly cloudy")" ]]
+}
+
+@test "weather.sh - weather_render_icon is empty by default" {
+  [[ -z "$(weather_render_icon "+20°C clear")" ]]
+}
+
+@test "weather.sh - weather_render_icon honors the band option" {
+  set_tmux_option "@weather_revamped_freezing_icon" "ICE"
+  [[ "$(weather_render_icon "-5°C")" == "ICE" ]]
+}
+
+@test "weather.sh - weather_render_icon is empty without a parseable temperature" {
+  [[ -z "$(weather_render_icon "partly cloudy")" ]]
+}

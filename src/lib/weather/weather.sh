@@ -8,6 +8,10 @@
 [[ -n "${_WEATHER_REVAMPED_WEATHER_LOADED:-}" ]] && return 0
 _WEATHER_REVAMPED_WEATHER_LOADED=1
 
+_WEATHER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "${_WEATHER_SCRIPT_DIR}/../tmux/tmux-ops.sh"
+
 # Seconds before the HTTP request is abandoned.
 WEATHER_TIMEOUT="${WEATHER_TIMEOUT:-10}"
 
@@ -35,6 +39,72 @@ weather_fetch() {
   esac
 }
 
+# weather_temp_from_text TEXT -> the signed integer temperature, empty when none.
+# A wttr.in one-line value carries the temperature as a signed number before a
+# degree mark, for example "+18C clear" or "-3°C". The awk grabs the first such
+# token and strips its sign-preserving prefix.
+weather_temp_from_text() {
+  local text="${1}"
+  echo "${text}" | awk 'match($0, /[+-]?[0-9]+°?[CF]/) { s=substr($0, RSTART, RLENGTH); gsub(/[^0-9+-]/, "", s); print s+0; exit }'
+}
+
+# weather_band CELSIUS -> a temperature band name, empty when CELSIUS is not an
+# integer. Thresholds are hardcoded: freezing <0, cold 0-9, cool 10-17,
+# comfortable 18-23, hot 24-31, very_hot >=32.
+weather_band() {
+  local celsius="${1}"
+  [[ "${celsius}" =~ ^-?[0-9]+$ ]] || return 0
+  if (( celsius < 0 )); then
+    echo "freezing"
+  elif (( celsius <= 9 )); then
+    echo "cold"
+  elif (( celsius <= 17 )); then
+    echo "cool"
+  elif (( celsius <= 23 )); then
+    echo "comfortable"
+  elif (( celsius <= 31 )); then
+    echo "hot"
+  else
+    echo "very_hot"
+  fi
+}
+
+# _weather_band_default_color BAND -> the built-in color for a band.
+_weather_band_default_color() {
+  case "${1}" in
+    freezing)    echo "#[fg=blue]" ;;
+    cold)        echo "#[fg=cyan]" ;;
+    cool)        echo "#[fg=green]" ;;
+    comfortable) echo "#[fg=green]" ;;
+    hot)         echo "#[fg=yellow]" ;;
+    very_hot)    echo "#[fg=red]" ;;
+    *)           echo "" ;;
+  esac
+}
+
+# weather_render_color TEXT -> the tmux color style for the temperature in TEXT,
+# read from @weather_revamped_<band>_color, empty when no band is parsed.
+weather_render_color() {
+  local band
+  band=$(weather_band "$(weather_temp_from_text "${1}")")
+  [[ -z "${band}" ]] && return 0
+  get_tmux_option "@weather_revamped_${band}_color" "$(_weather_band_default_color "${band}")"
+}
+
+# weather_render_icon TEXT -> the icon for the temperature in TEXT, read from
+# @weather_revamped_<band>_icon, empty by default so no Nerd Font is required.
+weather_render_icon() {
+  local band
+  band=$(weather_band "$(weather_temp_from_text "${1}")")
+  [[ -z "${band}" ]] && return 0
+  get_tmux_option "@weather_revamped_${band}_icon" ""
+}
+
 export -f weather_build_url
 export -f _read_weather
 export -f weather_fetch
+export -f weather_temp_from_text
+export -f weather_band
+export -f _weather_band_default_color
+export -f weather_render_color
+export -f weather_render_icon

@@ -55,6 +55,8 @@ main() {
 
   case "${cmd}" in
     weather) cache_get value ;;
+    color)   weather_render_color "$(cache_get value)" ;;
+    icon)    weather_render_icon "$(cache_get value)" ;;
     *)       return 0 ;;
   esac
 }

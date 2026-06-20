@@ -8,7 +8,7 @@
 
 </div>
 
-**1** placeholder · **65** tests · **95%+** coverage
+**3** placeholders · **80** tests · **95%+** coverage
 
 A weather lookup is an HTTP request, the slowest thing a status bar can do inline. This plugin runs `curl` with a hard timeout inside a detached worker, caches the result in a tmux server user-option, and serves the status line from that cache. No temp files are used, and a failed fetch keeps the last good reading on screen.
 
@@ -21,7 +21,7 @@ Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather). Built fr
 </tr>
 <tr>
 <td><b>Cross-platform</b><br/>Runs anywhere `curl` is on <code>PATH</code>, on every supported architecture.</td>
-<td><b>Tested</b><br/>65 tests at 95%+ coverage guard every code path.</td>
+<td><b>Tested</b><br/>80 tests at 95%+ coverage guard every code path.</td>
 </tr>
 </table>
 
@@ -30,6 +30,15 @@ Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather). Built fr
 | Placeholder | Output |
 |-------------|--------|
 | `#{weather}` | the wttr.in one-line forecast, for example `+18C clear` |
+| `#{weather_color}` | a tmux color style for the current temperature band, for example `#[fg=green]` |
+| `#{weather_icon}` | an icon for the current temperature band, empty until you set one |
+
+Pair the color with the value, and reset afterward, to tint the reading by
+temperature:
+
+```tmux
+set -g status-right '#{weather_color}#{weather}#[default] '
+```
 
 ## Install
 
@@ -54,6 +63,32 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 
 See the [wttr.in format options](https://github.com/chubin/wttr.in#one-line-output)
 for format codes.
+
+### Temperature bands
+
+`#{weather_color}` and `#{weather_icon}` classify the current temperature into a
+band, then read a per-band color and icon. The temperature is parsed from the
+cached wttr.in value, so no extra fetch happens. Bands use these Celsius
+thresholds:
+
+| Band | Range (°C) | Default color | Color option | Icon option |
+|------|------------|---------------|--------------|-------------|
+| freezing | below 0 | `#[fg=blue]` | `@weather_revamped_freezing_color` | `@weather_revamped_freezing_icon` |
+| cold | 0 to 9 | `#[fg=cyan]` | `@weather_revamped_cold_color` | `@weather_revamped_cold_icon` |
+| cool | 10 to 17 | `#[fg=green]` | `@weather_revamped_cool_color` | `@weather_revamped_cool_icon` |
+| comfortable | 18 to 23 | `#[fg=green]` | `@weather_revamped_comfortable_color` | `@weather_revamped_comfortable_icon` |
+| hot | 24 to 31 | `#[fg=yellow]` | `@weather_revamped_hot_color` | `@weather_revamped_hot_icon` |
+| very_hot | 32 and up | `#[fg=red]` | `@weather_revamped_very_hot_color` | `@weather_revamped_very_hot_icon` |
+
+Every icon option defaults to empty, so no Nerd Font is required. Set the ones
+you want:
+
+```tmux
+set -g @weather_revamped_freezing_icon 'COLD '
+set -g @weather_revamped_hot_color '#[fg=colour208]'
+```
+
+When the temperature cannot be parsed, both placeholders render empty.
 
 ## Support by platform and architecture
 
