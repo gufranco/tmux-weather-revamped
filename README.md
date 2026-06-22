@@ -59,9 +59,10 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `@tmux-weather-location` | empty | a city or location; empty auto-detects by IP |
-| `@tmux-weather-units` | `m` | `m` for metric, `u` for imperial |
-| `@tmux-weather-format` | `1` | a wttr.in one-line format code |
+| `@tmux-weather-units` | `m` | Celsius or Fahrenheit; accepts `m`/`c`/`celsius` and `u`/`f`/`fahrenheit` |
+| `@tmux-weather-format` | `%C+%t` | a wttr.in one-line format code; the default carries the condition and temperature |
 | `@tmux-weather-interval` | `15` | minutes between background fetches |
+| `@weather_revamped_show_condition_icon` | `on` | set to `off` to hide the sky glyph from `#{weather_condition_icon}` |
 | `@weather_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/weather-revamped-logs` |
 
 See the [wttr.in format options](https://github.com/chubin/wttr.in#one-line-output)

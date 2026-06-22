@@ -20,6 +20,18 @@ teardown() {
   [[ "$(weather_build_url London u 1)" == "https://wttr.in/London?format=1&u" ]]
 }
 
+@test "weather.sh - weather_build_url accepts fahrenheit aliases" {
+  [[ "$(weather_build_url London f 1)" == *"&u" ]]
+  [[ "$(weather_build_url London F 1)" == *"&u" ]]
+  [[ "$(weather_build_url London fahrenheit 1)" == *"&u" ]]
+}
+
+@test "weather.sh - weather_build_url treats celsius aliases as metric" {
+  [[ "$(weather_build_url London c 1)" == *"&m" ]]
+  [[ "$(weather_build_url London celsius 1)" == *"&m" ]]
+  [[ "$(weather_build_url London '' 1)" == *"&m" ]]
+}
+
 @test "weather.sh - weather_build_url allows an empty location" {
   [[ "$(weather_build_url '' m 3)" == "https://wttr.in/?format=3&m" ]]
 }
@@ -180,4 +192,9 @@ teardown() {
   [[ -n "$(weather_render_condition_icon "Light rain +18°C")" ]]
   set_tmux_option "@weather_revamped_rain_condition_icon" "R"
   [[ "$(weather_render_condition_icon "Light rain +18°C")" == "R" ]]
+}
+
+@test "weather.sh - the condition icon can be hidden" {
+  set_tmux_option "@weather_revamped_show_condition_icon" "off"
+  [[ -z "$(weather_render_condition_icon "Light rain +18°C")" ]]
 }

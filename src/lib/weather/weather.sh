@@ -18,8 +18,13 @@ WEATHER_TIMEOUT="${WEATHER_TIMEOUT:-10}"
 # weather_build_url LOCATION UNITS FORMAT -> a wttr.in request URL.
 weather_build_url() {
   local location="${1}" units="${2}" format="${3}"
-  local unit_flag="&m"
-  [[ "${units}" == "u" ]] && unit_flag="&u"
+  # Accept friendly aliases for the unit: Fahrenheit and Celsius spellings, plus
+  # the wttr.in m and u flags. Anything unrecognized falls back to metric.
+  local unit_flag
+  case "${units}" in
+    u | f | F | fahrenheit | Fahrenheit | imperial) unit_flag="&u" ;;
+    *) unit_flag="&m" ;;
+  esac
   echo "https://wttr.in/${location}?format=${format}${unit_flag}"
 }
 
@@ -146,6 +151,10 @@ weather_condition_default_icon() {
 # weather_render_condition_icon TEXT -> the Nerd Font glyph for the sky condition
 # in TEXT, overridable via @weather_revamped_<key>_condition_icon.
 weather_render_condition_icon() {
+  # A single switch to hide the sky glyph without editing the status format.
+  case "$(get_tmux_option "@weather_revamped_show_condition_icon" "on")" in
+    off | 0 | no | false) return 0 ;;
+  esac
   local key
   key=$(weather_condition_key "$(weather_condition_from_text "${1}")")
   get_tmux_option "@weather_revamped_${key}_condition_icon" "$(weather_condition_default_icon "${key}")"
