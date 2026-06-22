@@ -11,8 +11,10 @@ WEATHER_CMD="${PLUGIN_DIR}/src/weather.sh"
 
 interpolate() {
   local value="${1}"
+  value="${value//\#\{weather_condition_icon\}/#(${WEATHER_CMD} condition_icon)}"
   value="${value//\#\{weather_color\}/#(${WEATHER_CMD} color)}"
   value="${value//\#\{weather_icon\}/#(${WEATHER_CMD} icon)}"
+  value="${value//\#\{weather_temp\}/#(${WEATHER_CMD} temp)}"
   value="${value//\#\{weather\}/#(${WEATHER_CMD} weather)}"
   echo "${value}"
 }

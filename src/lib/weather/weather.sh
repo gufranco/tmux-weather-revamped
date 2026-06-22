@@ -100,6 +100,57 @@ weather_render_icon() {
   get_tmux_option "@weather_revamped_${band}_icon" ""
 }
 
+# weather_temp_display_from_text TEXT -> the temperature token for display, with a
+# leading plus removed, for example "Partly cloudy +25°C" -> "25°C".
+weather_temp_display_from_text() {
+  local tok
+  tok=$(echo "${1}" | awk 'match($0, /[+-]?[0-9]+°?[CF]/) { print substr($0, RSTART, RLENGTH); exit }')
+  printf '%s' "${tok#+}"
+}
+
+# weather_condition_from_text TEXT -> the sky condition words, the part of TEXT
+# before the temperature token, for example "Partly cloudy +25°C" -> "Partly
+# cloudy". Empty when no temperature is present.
+weather_condition_from_text() {
+  echo "${1}" | awk 'match($0, /[+-]?[0-9]+°?[CF]/) { c=substr($0, 1, RSTART-1); gsub(/(^[ \t]+|[ \t]+$)/, "", c); print c; exit }'
+}
+
+# weather_condition_key CONDITION -> a normalized key. Storm and snow are checked
+# before rain so "thundery rain" maps to storm and "sleet" to snow.
+weather_condition_key() {
+  local c
+  c=$(printf '%s' "${1}" | tr '[:upper:]' '[:lower:]')
+  case "${c}" in
+    *thunder* | *storm*) echo "storm" ;;
+    *snow* | *sleet* | *blizzard* | *ice*) echo "snow" ;;
+    *rain* | *drizzle* | *shower*) echo "rain" ;;
+    *fog* | *mist* | *haze*) echo "fog" ;;
+    *overcast* | *cloud*) echo "clouds" ;;
+    *) echo "clear" ;;
+  esac
+}
+
+# weather_condition_default_icon KEY -> the built-in Nerd Font weather glyph,
+# emitted through printf escapes so no literal glyph lives in the source.
+weather_condition_default_icon() {
+  case "${1}" in
+    clouds) printf '' ;;
+    rain)   printf '' ;;
+    snow)   printf '' ;;
+    storm)  printf '' ;;
+    fog)    printf '' ;;
+    *)      printf '' ;;
+  esac
+}
+
+# weather_render_condition_icon TEXT -> the Nerd Font glyph for the sky condition
+# in TEXT, overridable via @weather_revamped_<key>_condition_icon.
+weather_render_condition_icon() {
+  local key
+  key=$(weather_condition_key "$(weather_condition_from_text "${1}")")
+  get_tmux_option "@weather_revamped_${key}_condition_icon" "$(weather_condition_default_icon "${key}")"
+}
+
 export -f weather_build_url
 export -f _read_weather
 export -f weather_fetch
@@ -108,3 +159,8 @@ export -f weather_band
 export -f _weather_band_default_color
 export -f weather_render_color
 export -f weather_render_icon
+export -f weather_temp_display_from_text
+export -f weather_condition_from_text
+export -f weather_condition_key
+export -f weather_condition_default_icon
+export -f weather_render_condition_icon

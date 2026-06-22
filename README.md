@@ -29,15 +29,18 @@ Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather). Built fr
 
 | Placeholder | Output |
 |-------------|--------|
-| `#{weather}` | the wttr.in one-line forecast, for example `+18C clear` |
+| `#{weather}` | the wttr.in one-line forecast, for example `Partly cloudy +18°C` |
+| `#{weather_temp}` | just the temperature, leading plus removed, for example `18°C` |
+| `#{weather_condition_icon}` | a Nerd Font glyph for the sky condition, for example a sun, cloud, or rain glyph |
 | `#{weather_color}` | a tmux color style for the current temperature band, for example `#[fg=green]` |
 | `#{weather_icon}` | an icon for the current temperature band, empty until you set one |
 
 Pair the color with the value, and reset afterward, to tint the reading by
-temperature:
+temperature. A clean Nerd Font layout is the condition glyph, then the
+temperature, colored by band:
 
 ```tmux
-set -g status-right '#{weather_color}#{weather}#[default] '
+set -g status-right '#{weather_color}#{weather_condition_icon} #{weather_temp}#[default] '
 ```
 
 ## Install
@@ -89,6 +92,30 @@ set -g @weather_revamped_hot_color '#[fg=colour208]'
 ```
 
 When the temperature cannot be parsed, both placeholders render empty.
+
+### Sky conditions
+
+`#{weather_condition_icon}` reads the wttr.in condition text and maps it to a
+Nerd Font weather glyph. For this to work the fetch format must include the
+condition, which the default `@tmux-weather-format` of `%C+%t` already does.
+Conditions are normalized into six keys, each with a Nerd Font default that you
+can override:
+
+| Key | Matches conditions containing | Icon option |
+|-----|-------------------------------|-------------|
+| clear | sun, clear | `@weather_revamped_clear_condition_icon` |
+| clouds | cloud, overcast | `@weather_revamped_clouds_condition_icon` |
+| rain | rain, drizzle, shower | `@weather_revamped_rain_condition_icon` |
+| snow | snow, sleet, blizzard, ice | `@weather_revamped_snow_condition_icon` |
+| storm | thunder, storm | `@weather_revamped_storm_condition_icon` |
+| fog | fog, mist, haze | `@weather_revamped_fog_condition_icon` |
+
+Storm and snow are matched before rain, so a thundery shower maps to storm and
+sleet to snow. Override any key to a different glyph or plain text:
+
+```tmux
+set -g @weather_revamped_rain_condition_icon 'RAIN'
+```
 
 ## Theme color suggestions
 

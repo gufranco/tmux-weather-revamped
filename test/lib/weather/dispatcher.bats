@@ -66,6 +66,26 @@ teardown() {
   [[ "${output}" == "HOT" ]]
 }
 
+@test "weather.sh dispatcher - temp subcommand renders the cached temperature" {
+  weather_fetch() { echo "Partly cloudy +28°C"; }
+  run main temp
+  [[ "${output}" == "28°C" ]]
+}
+
+@test "weather.sh dispatcher - condition_icon subcommand renders the sky glyph" {
+  set_tmux_option "@weather_revamped_clear_condition_icon" "SUN"
+  weather_fetch() { echo "Sunny +28°C"; }
+  run main condition_icon
+  [[ "${output}" == "SUN" ]]
+}
+
+@test "weather.sh dispatcher - refresh subcommand fetches without rendering" {
+  weather_fetch() { echo "Sunny +20°C"; }
+  run main refresh
+  [[ -z "${output}" ]]
+  [[ "$(cache_get value)" == "Sunny +20°C" ]]
+}
+
 @test "weather.sh dispatcher - unknown subcommand produces no output" {
   run main bogus
   [[ -z "${output}" ]]

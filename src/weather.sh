@@ -30,7 +30,7 @@ weather_refresh() {
   url=$(weather_build_url \
     "$(get_tmux_option "@tmux-weather-location" "")" \
     "$(get_tmux_option "@tmux-weather-units" "m")" \
-    "$(get_tmux_option "@tmux-weather-format" "1")")
+    "$(get_tmux_option "@tmux-weather-format" "%C+%t")")
   value=$(weather_fetch "${url}")
   if [[ -n "${value}" ]]; then
     cache_set value "${value}"
@@ -54,10 +54,12 @@ main() {
   weather_tick
 
   case "${cmd}" in
-    weather) cache_get value ;;
-    color)   weather_render_color "$(cache_get value)" ;;
-    icon)    weather_render_icon "$(cache_get value)" ;;
-    *)       return 0 ;;
+    weather)        cache_get value ;;
+    color)          weather_render_color "$(cache_get value)" ;;
+    icon)           weather_render_icon "$(cache_get value)" ;;
+    condition_icon) weather_render_condition_icon "$(cache_get value)" ;;
+    temp)           weather_temp_display_from_text "$(cache_get value)" ;;
+    *)              return 0 ;;
   esac
 }
 

@@ -156,3 +156,28 @@ teardown() {
 @test "weather.sh - weather_render_icon is empty without a parseable temperature" {
   [[ -z "$(weather_render_icon "partly cloudy")" ]]
 }
+
+@test "weather.sh - weather_temp_display_from_text strips a leading plus" {
+  [[ "$(weather_temp_display_from_text "Partly cloudy +25°C")" == "25°C" ]]
+  [[ "$(weather_temp_display_from_text "Light snow -3°C")" == "-3°C" ]]
+}
+
+@test "weather.sh - weather_condition_from_text returns the words before the temp" {
+  [[ "$(weather_condition_from_text "Partly cloudy +25°C")" == "Partly cloudy" ]]
+  [[ "$(weather_condition_from_text "Sunny +30°C")" == "Sunny" ]]
+}
+
+@test "weather.sh - weather_condition_key normalizes conditions" {
+  [[ "$(weather_condition_key "Thundery outbreaks possible")" == "storm" ]]
+  [[ "$(weather_condition_key "Light snow")" == "snow" ]]
+  [[ "$(weather_condition_key "Patchy rain possible")" == "rain" ]]
+  [[ "$(weather_condition_key "Fog")" == "fog" ]]
+  [[ "$(weather_condition_key "Overcast")" == "clouds" ]]
+  [[ "$(weather_condition_key "Sunny")" == "clear" ]]
+}
+
+@test "weather.sh - condition icon has a Nerd Font default and is overridable" {
+  [[ -n "$(weather_render_condition_icon "Light rain +18°C")" ]]
+  set_tmux_option "@weather_revamped_rain_condition_icon" "R"
+  [[ "$(weather_render_condition_icon "Light rain +18°C")" == "R" ]]
+}
