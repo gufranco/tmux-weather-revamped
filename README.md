@@ -8,7 +8,7 @@
 
 </div>
 
-**3** placeholders · **80** tests · **95%+** coverage
+**5** placeholders · **92** tests · **95%+** coverage
 
 A weather lookup is an HTTP request, the slowest thing a status bar can do inline. This plugin runs `curl` with a hard timeout inside a detached worker, caches the result in a tmux server user-option, and serves the status line from that cache. No temp files are used, and a failed fetch keeps the last good reading on screen.
 
