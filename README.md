@@ -4,7 +4,7 @@
 
 **Weather in your tmux status bar, fetched in the background so the render never waits on the network.**
 
-[![Tests](https://github.com/gufranco/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/gufranco/tmux-weather-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](CHANGELOG.md)
+[![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](CHANGELOG.md)
 
 </div>
 
@@ -12,7 +12,7 @@
 
 A weather lookup is an HTTP request, the slowest thing a status bar can do inline. This plugin runs `curl` with a hard timeout inside a detached worker, caches the result in a tmux server user-option, and serves the status line from that cache. No temp files are used, and a failed fetch keeps the last good reading on screen.
 
-Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather). Built from [tmux-plugin-template](https://github.com/gufranco/tmux-plugin-template). Weather data comes from [wttr.in](https://github.com/chubin/wttr.in).
+Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather). Built from [tmux-plugin-template](https://github.com/tmux-revamped/tmux-plugin-template). Weather data comes from [wttr.in](https://github.com/chubin/wttr.in).
 
 <table>
 <tr>
@@ -48,7 +48,7 @@ set -g status-right '#{weather_color}#{weather_condition_icon} #{weather_temp}#[
 With [TPM](https://github.com/tmux-plugins/tpm):
 
 ```tmux
-set -g @plugin 'gufranco/tmux-weather-revamped'
+set -g @plugin 'tmux-revamped/tmux-weather-revamped'
 set -g status-right '#{weather} '
 ```
 
