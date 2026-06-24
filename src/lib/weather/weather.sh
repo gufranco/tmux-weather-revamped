@@ -18,6 +18,9 @@ WEATHER_TIMEOUT="${WEATHER_TIMEOUT:-10}"
 # weather_build_url LOCATION UNITS FORMAT -> a wttr.in request URL.
 weather_build_url() {
   local location="${1}" units="${2}" format="${3}"
+  # A place name with spaces, like "New York", breaks the bare URL. wttr.in
+  # accepts a plus for each space, so encode them before building the request.
+  location="${location// /+}"
   # Accept friendly aliases for the unit: Fahrenheit and Celsius spellings, plus
   # the wttr.in m and u flags. Anything unrecognized falls back to metric.
   local unit_flag
@@ -50,7 +53,7 @@ weather_fetch() {
 # token and strips its sign-preserving prefix.
 weather_temp_from_text() {
   local text="${1}"
-  echo "${text}" | awk 'match($0, /[+-]?[0-9]+°?[CF]/) { s=substr($0, RSTART, RLENGTH); gsub(/[^0-9+-]/, "", s); print s+0; exit }'
+  echo "${text}" | awk 'match($0, /[+-]?[0-9]+[^0-9A-Za-z ]*[CF]/) { s=substr($0, RSTART, RLENGTH); gsub(/[^0-9+-]/, "", s); print s+0; exit }'
 }
 
 # weather_band CELSIUS -> a temperature band name, empty when CELSIUS is not an
@@ -109,15 +112,34 @@ weather_render_icon() {
 # leading plus removed, for example "Partly cloudy +25°C" -> "25°C".
 weather_temp_display_from_text() {
   local tok
-  tok=$(echo "${1}" | awk 'match($0, /[+-]?[0-9]+°?[CF]/) { print substr($0, RSTART, RLENGTH); exit }')
+  tok=$(echo "${1}" | awk 'match($0, /[+-]?[0-9]+[^0-9A-Za-z ]*[CF]/) { print substr($0, RSTART, RLENGTH); exit }')
   printf '%s' "${tok#+}"
+}
+
+# weather_strip_units TOKEN -> the display token with the trailing C or F unit
+# letter removed, keeping the degree mark, for example "25°C" -> "25°". Lets a
+# crowded status bar show the number alone.
+weather_strip_units() {
+  printf '%s' "${1%[CF]}"
+}
+
+# weather_render_temp TEXT -> the temperature for display: the leading plus is
+# always dropped, and when @tmux-weather-hide-units is on the C or F unit letter
+# is dropped too.
+weather_render_temp() {
+  local disp
+  disp=$(weather_temp_display_from_text "${1}")
+  case "$(get_tmux_option "@tmux-weather-hide-units" "off")" in
+    on | 1 | yes | true) weather_strip_units "${disp}" ;;
+    *) printf '%s' "${disp}" ;;
+  esac
 }
 
 # weather_condition_from_text TEXT -> the sky condition words, the part of TEXT
 # before the temperature token, for example "Partly cloudy +25°C" -> "Partly
 # cloudy". Empty when no temperature is present.
 weather_condition_from_text() {
-  echo "${1}" | awk 'match($0, /[+-]?[0-9]+°?[CF]/) { c=substr($0, 1, RSTART-1); gsub(/(^[ \t]+|[ \t]+$)/, "", c); print c; exit }'
+  echo "${1}" | awk 'match($0, /[+-]?[0-9]+[^0-9A-Za-z ]*[CF]/) { c=substr($0, 1, RSTART-1); gsub(/(^[ \t]+|[ \t]+$)/, "", c); print c; exit }'
 }
 
 # weather_condition_key CONDITION -> a normalized key. Storm and snow are checked
@@ -169,6 +191,8 @@ export -f _weather_band_default_color
 export -f weather_render_color
 export -f weather_render_icon
 export -f weather_temp_display_from_text
+export -f weather_strip_units
+export -f weather_render_temp
 export -f weather_condition_from_text
 export -f weather_condition_key
 export -f weather_condition_default_icon

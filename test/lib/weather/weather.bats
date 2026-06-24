@@ -36,6 +36,23 @@ teardown() {
   [[ "$(weather_build_url '' m 3)" == "https://wttr.in/?format=3&m" ]]
 }
 
+@test "weather.sh - weather_build_url encodes spaces in the location" {
+  [[ "$(weather_build_url 'New York' m 1)" == "https://wttr.in/New+York?format=1&m" ]]
+  [[ "$(weather_build_url 'Rio de Janeiro' u 1)" == "https://wttr.in/Rio+de+Janeiro?format=1&u" ]]
+}
+
+@test "weather.sh - weather_strip_units drops the unit letter, keeps the degree" {
+  [[ "$(weather_strip_units '25°C')" == "25°" ]]
+  [[ "$(weather_strip_units '70°F')" == "70°" ]]
+  [[ "$(weather_strip_units '18')" == "18" ]]
+}
+
+@test "weather.sh - weather_render_temp strips the plus and honors hide-units" {
+  [[ "$(weather_render_temp 'Sunny +25°C')" == "25°C" ]]
+  set_tmux_option "@tmux-weather-hide-units" "on"
+  [[ "$(weather_render_temp 'Sunny +25°C')" == "25°" ]]
+}
+
 @test "weather.sh - weather_fetch returns a successful body" {
   _read_weather() { echo "Partly cloudy 18°C"; }
   [[ "$(weather_fetch "http://x")" == "Partly cloudy 18°C" ]]

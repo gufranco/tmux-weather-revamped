@@ -5,6 +5,29 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-23
+
+### Added
+
+- `@tmux-weather-hide-units` drops the C or F unit letter from `#{weather_temp}`
+  for a tighter status bar (upstream tmux-weather PR #4).
+
+### Fixed
+
+- A place name with spaces, like `New York`, now builds a valid request URL
+  instead of breaking on the bare space (upstream tmux-weather #14).
+- Temperature parsing no longer depends on the awk locale. The optional degree
+  mark was matched as a multibyte literal, which failed under a byte-oriented
+  awk such as mawk and dropped readings that had no degree symbol. The pattern
+  now uses a portable character class.
+
+### Changed
+
+- Reviewed the upstream `ilya-manin/tmux-weather` issues. The leading plus on a
+  positive temperature is already stripped (#13), an empty location already
+  auto-detects by IP (PR #16), and the background-fetch design already avoids the
+  "no server running" startup spam (#18).
+
 ## [1.1.0] - 2026-06-20
 
 ### Added

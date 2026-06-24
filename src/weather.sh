@@ -58,7 +58,7 @@ main() {
     color)          weather_render_color "$(cache_get value)" ;;
     icon)           weather_render_icon "$(cache_get value)" ;;
     condition_icon) weather_render_condition_icon "$(cache_get value)" ;;
-    temp)           weather_temp_display_from_text "$(cache_get value)" ;;
+    temp)           weather_render_temp "$(cache_get value)" ;;
     *)              return 0 ;;
   esac
 }

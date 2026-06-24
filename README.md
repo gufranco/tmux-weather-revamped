@@ -62,6 +62,7 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 | `@tmux-weather-units` | `m` | Celsius or Fahrenheit; accepts `m`/`c`/`celsius` and `u`/`f`/`fahrenheit` |
 | `@tmux-weather-format` | `%C+%t` | a wttr.in one-line format code; the default carries the condition and temperature |
 | `@tmux-weather-interval` | `15` | minutes between background fetches |
+| `@tmux-weather-hide-units` | `off` | set to `on` to drop the `C`/`F` unit letter from `#{weather_temp}`, keeping just the number and degree mark |
 | `@weather_revamped_show_condition_icon` | `on` | set to `off` to hide the sky glyph from `#{weather_condition_icon}` |
 | `@weather_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/weather-revamped-logs` |
 
