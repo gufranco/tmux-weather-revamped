@@ -197,3 +197,129 @@ export -f weather_condition_from_text
 export -f weather_condition_key
 export -f weather_condition_default_icon
 export -f weather_render_condition_icon
+
+# --- Presentation helpers for the enriched single-fetch reading ---------------
+# These take already-extracted numbers or strings and turn them into status-bar
+# tokens: bands, comfort words, hints, and trend marks. They stay pure so each
+# is covered with fixture inputs and no network.
+
+# weather_uv_band UV -> a UV exposure band, empty when UV is not an integer.
+# Bands follow the WHO scale: low 0-2, moderate 3-5, high 6-7, very_high 8-10,
+# extreme 11+.
+weather_uv_band() {
+  local uv="${1}"
+  [[ "${uv}" =~ ^[0-9]+$ ]] || return 0
+  if (( uv <= 2 )); then
+    echo "low"
+  elif (( uv <= 5 )); then
+    echo "moderate"
+  elif (( uv <= 7 )); then
+    echo "high"
+  elif (( uv <= 10 )); then
+    echo "very_high"
+  else
+    echo "extreme"
+  fi
+}
+
+# _weather_uv_default_color BAND -> the built-in color for a UV band.
+_weather_uv_default_color() {
+  case "${1}" in
+    low)       echo "#[fg=green]" ;;
+    moderate)  echo "#[fg=yellow]" ;;
+    high)      echo "#[fg=colour208]" ;;
+    very_high) echo "#[fg=red]" ;;
+    extreme)   echo "#[fg=magenta]" ;;
+    *)         echo "" ;;
+  esac
+}
+
+# weather_uv_color UV -> the tmux color for the UV band, overridable through
+# @weather_revamped_uv_<band>_color, empty when UV is not an integer.
+weather_uv_color() {
+  local band
+  band=$(weather_uv_band "${1}")
+  [[ -z "${band}" ]] && return 0
+  get_tmux_option "@weather_revamped_uv_${band}_color" "$(_weather_uv_default_color "${band}")"
+}
+
+# weather_dew_comfort DEW_C -> a comfort word from the Celsius dew point: dry
+# below 13, comfortable 13-15, humid 16-18, oppressive 19 and up. Empty when the
+# dew point is not an integer.
+weather_dew_comfort() {
+  local dew="${1}"
+  [[ "${dew}" =~ ^-?[0-9]+$ ]] || return 0
+  if (( dew < 13 )); then
+    echo "dry"
+  elif (( dew <= 15 )); then
+    echo "comfortable"
+  elif (( dew <= 18 )); then
+    echo "humid"
+  else
+    echo "oppressive"
+  fi
+}
+
+# weather_umbrella_hint CHANCE -> the configured umbrella hint when the rain
+# chance reaches @weather_revamped_umbrella_threshold (default 50), empty
+# otherwise or when CHANCE is not an integer. The hint text defaults to empty so
+# no glyph is required; set @weather_revamped_umbrella_text to enable it.
+weather_umbrella_hint() {
+  local chance="${1}" threshold
+  [[ "${chance}" =~ ^[0-9]+$ ]] || return 0
+  threshold=$(get_tmux_option "@weather_revamped_umbrella_threshold" "50")
+  [[ "${threshold}" =~ ^[0-9]+$ ]] || threshold=50
+  (( chance >= threshold )) || return 0
+  get_tmux_option "@weather_revamped_umbrella_text" ""
+  return 0
+}
+
+# weather_pressure_trend CURRENT PREVIOUS -> a trend mark comparing two pressure
+# readings: rising, falling, or steady within @weather_revamped_pressure_delta
+# (default 1) hPa. Marks default to ASCII and are overridable. Empty when either
+# reading is not an integer.
+weather_pressure_trend() {
+  local cur="${1}" prev="${2}" delta
+  [[ "${cur}" =~ ^-?[0-9]+$ ]] || return 0
+  [[ "${prev}" =~ ^-?[0-9]+$ ]] || return 0
+  delta=$(get_tmux_option "@weather_revamped_pressure_delta" "1")
+  [[ "${delta}" =~ ^[0-9]+$ ]] || delta=1
+  if (( cur - prev > delta )); then
+    get_tmux_option "@weather_revamped_pressure_rising" "^"
+  elif (( prev - cur > delta )); then
+    get_tmux_option "@weather_revamped_pressure_falling" "v"
+  else
+    get_tmux_option "@weather_revamped_pressure_steady" "="
+  fi
+}
+
+# weather_condition_tint TEXT -> a tmux color override for the sky condition in
+# TEXT, read from @weather_revamped_<key>_tint, empty when none is configured.
+# Lets rain or storm paint the whole segment without touching the band color.
+weather_condition_tint() {
+  local key
+  key=$(weather_condition_key "$(weather_condition_from_text "${1}")")
+  get_tmux_option "@weather_revamped_${key}_tint" ""
+  return 0
+}
+
+# weather_stale_color AGE MAX_AGE -> a dim style when the reading is older than
+# three refresh intervals, signalling a long offline stretch. Empty while fresh
+# or when either argument is not an integer. Overridable via
+# @weather_revamped_stale_color.
+weather_stale_color() {
+  local age="${1}" max_age="${2}"
+  [[ "${age}" =~ ^[0-9]+$ ]] || return 0
+  [[ "${max_age}" =~ ^[0-9]+$ ]] || return 0
+  (( age > max_age * 3 )) || return 0
+  get_tmux_option "@weather_revamped_stale_color" "#[dim]"
+}
+
+export -f weather_uv_band
+export -f _weather_uv_default_color
+export -f weather_uv_color
+export -f weather_dew_comfort
+export -f weather_umbrella_hint
+export -f weather_pressure_trend
+export -f weather_condition_tint
+export -f weather_stale_color

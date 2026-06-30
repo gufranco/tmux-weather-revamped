@@ -5,6 +5,44 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-30
+
+### Added
+
+- One background fetch now pulls the full reading. The worker requests the
+  wttr.in `j1` JSON once and the hot path derives every placeholder from the
+  cached document, with no second request and no temp files. New placeholders:
+  `#{weather_feels_like}`, `#{weather_wind}`, `#{weather_humidity}`,
+  `#{weather_pressure}`, `#{weather_pressure_trend}`, `#{weather_precip}`,
+  `#{weather_rain_chance}`, `#{weather_umbrella}`, `#{weather_uv}`,
+  `#{weather_uv_color}`, `#{weather_dew_point}`, `#{weather_dew_comfort}`,
+  `#{weather_moon}`, `#{weather_sunrise}`, `#{weather_sunset}`,
+  `#{weather_forecast}`, `#{weather_today_high}`, `#{weather_today_low}`,
+  `#{weather_tomorrow_high}`, `#{weather_tomorrow_low}`,
+  `#{weather_condition_tint}`, and `#{weather_stale_color}`.
+- UV index bands with per-band colors, and a dew-point comfort word, both parsed
+  from the same reading.
+- A barometric pressure trend mark that compares the latest reading against the
+  previous fetch.
+- Multiple locations via `@tmux-weather-locations`, a `;`-separated list. Each
+  location runs its own background worker into its own cache option, and every
+  placeholder accepts a location name as an argument.
+- An opt-in severe-weather alert badge, off by default. Set
+  `@tmux-weather-alerts` and `@tmux-weather-alert-url` to fetch a second endpoint
+  in its own worker and surface `#{weather_alert}`.
+- A detail popup built from the cached reading, bound to `@tmux-weather-popup-key`
+  when set, plus a force-refresh key via `@tmux-weather-refresh-key`.
+- A `doctor` subcommand that reports tooling, configuration, and which fields the
+  current reading yields.
+
+### Changed
+
+- The single fetch now requests the `j1` JSON document instead of a one-line
+  format string, which is what lets one request carry feels-like, wind,
+  humidity, sun and moon times, UV, dew point, pressure, precipitation, and the
+  tomorrow forecast together. `#{weather}` and `#{weather_temp}` are unchanged on
+  screen, derived from the JSON.
+
 ## [1.2.0] - 2026-06-23
 
 ### Added

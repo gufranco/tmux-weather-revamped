@@ -6,6 +6,7 @@ setup() {
   setup_test_environment
   unset _WEATHER_REVAMPED_WEATHER_LOADED
   source "${BATS_TEST_DIRNAME}/../../../src/lib/weather/weather.sh"
+  DEG="$(printf '\xc2\xb0')"
 }
 
 teardown() {
@@ -214,4 +215,146 @@ teardown() {
 @test "weather.sh - the condition icon can be hidden" {
   set_tmux_option "@weather_revamped_show_condition_icon" "off"
   [[ -z "$(weather_render_condition_icon "Light rain +18°C")" ]]
+}
+
+@test "weather.sh - weather_uv_band classifies the WHO bands" {
+  [[ "$(weather_uv_band 0)" == "low" ]]
+  [[ "$(weather_uv_band 2)" == "low" ]]
+  [[ "$(weather_uv_band 3)" == "moderate" ]]
+  [[ "$(weather_uv_band 5)" == "moderate" ]]
+  [[ "$(weather_uv_band 6)" == "high" ]]
+  [[ "$(weather_uv_band 7)" == "high" ]]
+  [[ "$(weather_uv_band 8)" == "very_high" ]]
+  [[ "$(weather_uv_band 10)" == "very_high" ]]
+  [[ "$(weather_uv_band 11)" == "extreme" ]]
+}
+
+@test "weather.sh - weather_uv_band is empty for a non-integer" {
+  [[ -z "$(weather_uv_band "n/a")" ]]
+}
+
+@test "weather.sh - _weather_uv_default_color maps every band" {
+  [[ "$(_weather_uv_default_color low)" == "#[fg=green]" ]]
+  [[ "$(_weather_uv_default_color moderate)" == "#[fg=yellow]" ]]
+  [[ "$(_weather_uv_default_color high)" == "#[fg=colour208]" ]]
+  [[ "$(_weather_uv_default_color very_high)" == "#[fg=red]" ]]
+  [[ "$(_weather_uv_default_color extreme)" == "#[fg=magenta]" ]]
+  [[ -z "$(_weather_uv_default_color nonsense)" ]]
+}
+
+@test "weather.sh - weather_uv_color uses the band default" {
+  [[ "$(weather_uv_color 9)" == "#[fg=red]" ]]
+}
+
+@test "weather.sh - weather_uv_color honors the band option" {
+  set_tmux_option "@weather_revamped_uv_high_color" "#[fg=#fab387]"
+  [[ "$(weather_uv_color 6)" == "#[fg=#fab387]" ]]
+}
+
+@test "weather.sh - weather_uv_color is empty for a non-integer" {
+  [[ -z "$(weather_uv_color "x")" ]]
+}
+
+@test "weather.sh - weather_dew_comfort classifies comfort by celsius" {
+  [[ "$(weather_dew_comfort 5)" == "dry" ]]
+  [[ "$(weather_dew_comfort 12)" == "dry" ]]
+  [[ "$(weather_dew_comfort 13)" == "comfortable" ]]
+  [[ "$(weather_dew_comfort 15)" == "comfortable" ]]
+  [[ "$(weather_dew_comfort 16)" == "humid" ]]
+  [[ "$(weather_dew_comfort 18)" == "humid" ]]
+  [[ "$(weather_dew_comfort 19)" == "oppressive" ]]
+}
+
+@test "weather.sh - weather_dew_comfort handles a negative dew point" {
+  [[ "$(weather_dew_comfort -2)" == "dry" ]]
+}
+
+@test "weather.sh - weather_dew_comfort is empty for a non-integer" {
+  [[ -z "$(weather_dew_comfort "n/a")" ]]
+}
+
+@test "weather.sh - weather_umbrella_hint fires above the threshold" {
+  set_tmux_option "@weather_revamped_umbrella_text" "take an umbrella"
+  [[ "$(weather_umbrella_hint 60)" == "take an umbrella" ]]
+}
+
+@test "weather.sh - weather_umbrella_hint is silent below the threshold" {
+  set_tmux_option "@weather_revamped_umbrella_text" "take an umbrella"
+  [[ -z "$(weather_umbrella_hint 40)" ]]
+}
+
+@test "weather.sh - weather_umbrella_hint honors a custom threshold" {
+  set_tmux_option "@weather_revamped_umbrella_text" "umbrella"
+  set_tmux_option "@weather_revamped_umbrella_threshold" "30"
+  [[ "$(weather_umbrella_hint 35)" == "umbrella" ]]
+}
+
+@test "weather.sh - weather_umbrella_hint defaults junk threshold to fifty" {
+  set_tmux_option "@weather_revamped_umbrella_text" "umbrella"
+  set_tmux_option "@weather_revamped_umbrella_threshold" "abc"
+  [[ "$(weather_umbrella_hint 55)" == "umbrella" ]]
+  [[ -z "$(weather_umbrella_hint 45)" ]]
+}
+
+@test "weather.sh - weather_umbrella_hint is empty for a non-integer chance" {
+  [[ -z "$(weather_umbrella_hint "n/a")" ]]
+}
+
+@test "weather.sh - weather_pressure_trend marks rising falling steady" {
+  [[ "$(weather_pressure_trend 1015 1010)" == "^" ]]
+  [[ "$(weather_pressure_trend 1010 1015)" == "v" ]]
+  [[ "$(weather_pressure_trend 1013 1013)" == "=" ]]
+}
+
+@test "weather.sh - weather_pressure_trend honors a custom delta" {
+  set_tmux_option "@weather_revamped_pressure_delta" "5"
+  [[ "$(weather_pressure_trend 1016 1013)" == "=" ]]
+  [[ "$(weather_pressure_trend 1020 1013)" == "^" ]]
+}
+
+@test "weather.sh - weather_pressure_trend defaults junk delta to one" {
+  set_tmux_option "@weather_revamped_pressure_delta" "abc"
+  [[ "$(weather_pressure_trend 1016 1013)" == "^" ]]
+}
+
+@test "weather.sh - weather_pressure_trend honors custom marks" {
+  set_tmux_option "@weather_revamped_pressure_rising" "up"
+  [[ "$(weather_pressure_trend 1020 1010)" == "up" ]]
+}
+
+@test "weather.sh - weather_pressure_trend is empty without two integers" {
+  [[ -z "$(weather_pressure_trend 1013 "")" ]]
+  [[ -z "$(weather_pressure_trend "" 1013)" ]]
+}
+
+@test "weather.sh - weather_condition_tint reads a per-condition override" {
+  set_tmux_option "@weather_revamped_clouds_tint" "#[fg=grey]"
+  [[ "$(weather_condition_tint "Partly cloudy +18${DEG}C")" == "#[fg=grey]" ]]
+}
+
+@test "weather.sh - weather_condition_tint is empty by default" {
+  [[ -z "$(weather_condition_tint "Sunny +25${DEG}C")" ]]
+}
+
+@test "weather.sh - weather_stale_color dims a long-stale reading" {
+  [[ "$(weather_stale_color 3000 900)" == "#[dim]" ]]
+}
+
+@test "weather.sh - weather_stale_color is empty while fresh" {
+  [[ -z "$(weather_stale_color 100 900)" ]]
+}
+
+@test "weather.sh - weather_stale_color honors a custom dim style" {
+  set_tmux_option "@weather_revamped_stale_color" "#[fg=grey]"
+  [[ "$(weather_stale_color 3000 900)" == "#[fg=grey]" ]]
+}
+
+@test "weather.sh - weather_stale_color is empty for non-integers" {
+  [[ -z "$(weather_stale_color "x" 900)" ]]
+  [[ -z "$(weather_stale_color 100 "y")" ]]
+}
+
+@test "weather.sh - _read_weather runs curl behind a stub" {
+  curl() { printf 'Sunny 20C'; }
+  [[ "$(_read_weather "http://example")" == "Sunny 20C" ]]
 }

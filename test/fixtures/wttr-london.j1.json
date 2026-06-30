@@ -1,0 +1,93 @@
+{
+    "current_condition": [
+        {
+            "FeelsLikeC": "16",
+            "FeelsLikeF": "61",
+            "cloudcover": "75",
+            "humidity": "65",
+            "localObsDateTime": "2026-06-30 02:00 PM",
+            "observation_time": "01:00 PM",
+            "precipInches": "0.0",
+            "precipMM": "0.2",
+            "pressure": "1013",
+            "pressureInches": "30",
+            "temp_C": "18",
+            "temp_F": "64",
+            "uvIndex": "5",
+            "visibility": "10",
+            "visibilityMiles": "6",
+            "weatherCode": "116",
+            "weatherDesc": [
+                {
+                    "value": "Partly cloudy"
+                }
+            ],
+            "winddir16Point": "NW",
+            "winddirDegree": "315",
+            "windspeedKmph": "11",
+            "windspeedMiles": "7"
+        }
+    ],
+    "nearest_area": [
+        {
+            "areaName": [
+                {
+                    "value": "London"
+                }
+            ],
+            "country": [
+                {
+                    "value": "United Kingdom"
+                }
+            ]
+        }
+    ],
+    "weather": [
+        {
+            "astronomy": [
+                {
+                    "moon_illumination": "80",
+                    "moon_phase": "Waning Gibbous",
+                    "moonrise": "08:00 PM",
+                    "moonset": "07:00 AM",
+                    "sunrise": "06:00 AM",
+                    "sunset": "06:45 PM"
+                }
+            ],
+            "avgtempC": "19",
+            "avgtempF": "66",
+            "date": "2026-06-30",
+            "maxtempC": "25",
+            "maxtempF": "77",
+            "mintempC": "14",
+            "mintempF": "57",
+            "hourly": [
+                { "time": "0", "DewPointC": "11", "DewPointF": "52", "chanceofrain": "10" },
+                { "time": "300", "DewPointC": "10", "DewPointF": "50", "chanceofrain": "0" },
+                { "time": "600", "DewPointC": "12", "DewPointF": "54", "chanceofrain": "20" },
+                { "time": "900", "DewPointC": "13", "DewPointF": "55", "chanceofrain": "30" },
+                { "time": "1200", "DewPointC": "14", "DewPointF": "57", "chanceofrain": "60" },
+                { "time": "1500", "DewPointC": "13", "DewPointF": "55", "chanceofrain": "40" },
+                { "time": "1800", "DewPointC": "12", "DewPointF": "54", "chanceofrain": "20" },
+                { "time": "2100", "DewPointC": "11", "DewPointF": "52", "chanceofrain": "10" }
+            ]
+        },
+        {
+            "astronomy": [
+                {
+                    "moon_phase": "Last Quarter",
+                    "sunrise": "06:01 AM",
+                    "sunset": "06:44 PM"
+                }
+            ],
+            "date": "2026-07-01",
+            "maxtempC": "27",
+            "maxtempF": "81",
+            "mintempC": "15",
+            "mintempF": "59",
+            "hourly": [
+                { "time": "1200", "DewPointC": "16", "DewPointF": "61", "chanceofrain": "70" }
+            ]
+        }
+    ]
+}
